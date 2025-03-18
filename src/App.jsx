@@ -15,6 +15,10 @@ import Modal, { ModalHeader, ModalBody, ModalFooter } from './components/ui/Moda
 import Input from './components/ui/Input';
 import AppRoutes from './routes/AppRoutes';
 
+// Importar novos providers
+import { AuthProvider } from './contexts/AuthContext';
+import { BossProvider } from './contexts/BossContext';
+
 function App() {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [showNotifications, setShowNotifications] = useState(true);
@@ -294,135 +298,139 @@ function App() {
   ];
 
   return (
-    <Router>
-      <div className="min-h-screen bg-neutral-50 p-4 py-8">
-        <div className="max-w-6xl mx-auto">
-          <header className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <h1 className="text-3xl font-bold text-primary-600">EducaMaster AI</h1>
-            <div className="flex items-center gap-4">
-              <Button variant="outline" size="sm" onClick={() => setIsModalOpen(true)}>
-                Criar conteúdo
-              </Button>
-              <Avatar size="md" alt="Usuário" status="online" />
-              <div>
-                <p className="font-medium">João Silva</p>
-                <p className="text-sm text-neutral-500">Nível 5</p>
-              </div>
-            </div>
-          </header>
-          
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            {/* Coluna Lateral */}
-            <div className="md:col-span-1">
-              <Card className="mb-6">
-                <div className="flex flex-col items-center">
-                  <Avatar size="xl" alt="João Silva" status="online" />
-                  <h2 className="mt-4 font-bold text-lg">João Silva</h2>
-                  <p className="text-neutral-500 text-sm">Nível 5 • 2850 XP</p>
-                  
-                  <div className="w-full mt-4">
-                    <div className="flex justify-between text-sm text-neutral-500 mb-1">
-                      <span>Progresso para Nível 6</span>
-                      <span>65%</span>
-                    </div>
-                    <ProgressBar value={65} max={100} />
+    <AuthProvider>
+      <BossProvider>
+        <Router>
+          <div className="min-h-screen bg-neutral-50 p-4 py-8">
+            <div className="max-w-6xl mx-auto">
+              <header className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <h1 className="text-3xl font-bold text-primary-600">EducaMaster AI</h1>
+                <div className="flex items-center gap-4">
+                  <Button variant="outline" size="sm" onClick={() => setIsModalOpen(true)}>
+                    Criar conteúdo
+                  </Button>
+                  <Avatar size="md" alt="Usuário" status="online" />
+                  <div>
+                    <p className="font-medium">João Silva</p>
+                    <p className="text-sm text-neutral-500">Nível 5</p>
                   </div>
-                  
-                  <div className="flex flex-wrap gap-2 mt-6 justify-center">
-                    <Badge variant="success">3 dias consecutivos</Badge>
-                    <Badge variant="primary">10 quizzes</Badge>
-                  </div>
-                  
-                  <Button className="mt-6 w-full">Ver perfil completo</Button>
                 </div>
-              </Card>
+              </header>
               
-              <Card title="Configurações">
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-neutral-700">Modo escuro</span>
-                    <Toggle checked={isDarkMode} onChange={setIsDarkMode} />
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-neutral-700">Notificações</span>
-                    <Toggle checked={showNotifications} onChange={setShowNotifications} />
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-neutral-700">Sons</span>
-                    <Toggle checked={true} onChange={() => {}} />
-                  </div>
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                {/* Coluna Lateral */}
+                <div className="md:col-span-1">
+                  <Card className="mb-6">
+                    <div className="flex flex-col items-center">
+                      <Avatar size="xl" alt="João Silva" status="online" />
+                      <h2 className="mt-4 font-bold text-lg">João Silva</h2>
+                      <p className="text-neutral-500 text-sm">Nível 5 • 2850 XP</p>
+                      
+                      <div className="w-full mt-4">
+                        <div className="flex justify-between text-sm text-neutral-500 mb-1">
+                          <span>Progresso para Nível 6</span>
+                          <span>65%</span>
+                        </div>
+                        <ProgressBar value={65} max={100} />
+                      </div>
+                      
+                      <div className="flex flex-wrap gap-2 mt-6 justify-center">
+                        <Badge variant="success">3 dias consecutivos</Badge>
+                        <Badge variant="primary">10 quizzes</Badge>
+                      </div>
+                      
+                      <Button className="mt-6 w-full">Ver perfil completo</Button>
+                    </div>
+                  </Card>
+                  
+                  <Card title="Configurações">
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center">
+                        <span className="text-neutral-700">Modo escuro</span>
+                        <Toggle checked={isDarkMode} onChange={setIsDarkMode} />
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-neutral-700">Notificações</span>
+                        <Toggle checked={showNotifications} onChange={setShowNotifications} />
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-neutral-700">Sons</span>
+                        <Toggle checked={true} onChange={() => {}} />
+                      </div>
+                    </div>
+                  </Card>
                 </div>
-              </Card>
+                
+                {/* Conteúdo Principal */}
+                <div className="md:col-span-3">
+                  <Card>
+                    <Tabs tabs={tabsData} defaultTab="dashboard" />
+                  </Card>
+                </div>
+              </div>
             </div>
             
-            {/* Conteúdo Principal */}
-            <div className="md:col-span-3">
-              <Card>
-                <Tabs tabs={tabsData} defaultTab="dashboard" />
-              </Card>
-            </div>
-          </div>
-        </div>
-        
-        {/* Modal para criar conteúdo */}
-        <Modal 
-          isOpen={isModalOpen} 
-          onClose={() => setIsModalOpen(false)}
-          size="md"
-        >
-          <ModalHeader onClose={() => setIsModalOpen(false)}>
-            Criar novo conteúdo
-          </ModalHeader>
-          <ModalBody>
-            <div className="space-y-4">
-              <Input 
-                label="Título" 
-                name="title" 
-                placeholder="Digite um título para o conteúdo" 
-                required 
-              />
-              <div className="mb-4">
-                <label className="block mb-2 font-medium text-neutral-700">
-                  Tipo de conteúdo
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                  <Button 
-                    variant="outline"
-                    className="justify-center py-3"
-                  >
-                    Quiz
+            {/* Modal para criar conteúdo */}
+            <Modal 
+              isOpen={isModalOpen} 
+              onClose={() => setIsModalOpen(false)}
+              size="md"
+            >
+              <ModalHeader onClose={() => setIsModalOpen(false)}>
+                Criar novo conteúdo
+              </ModalHeader>
+              <ModalBody>
+                <div className="space-y-4">
+                  <Input 
+                    label="Título" 
+                    name="title" 
+                    placeholder="Digite um título para o conteúdo" 
+                    required 
+                  />
+                  <div className="mb-4">
+                    <label className="block mb-2 font-medium text-neutral-700">
+                      Tipo de conteúdo
+                    </label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <Button 
+                        variant="outline"
+                        className="justify-center py-3"
+                      >
+                        Quiz
+                      </Button>
+                      <Button 
+                        variant="outline"
+                        className="justify-center py-3"
+                      >
+                        Flashcards
+                      </Button>
+                    </div>
+                  </div>
+                  <Input 
+                    label="Texto base" 
+                    name="content" 
+                    placeholder="Cole ou digite o texto para gerar perguntas" 
+                    required 
+                    as="textarea"
+                    rows={5}
+                  />
+                </div>
+              </ModalBody>
+              <ModalFooter>
+                <div className="flex justify-end space-x-3">
+                  <Button variant="outline" onClick={() => setIsModalOpen(false)}>
+                    Cancelar
                   </Button>
-                  <Button 
-                    variant="outline"
-                    className="justify-center py-3"
-                  >
-                    Flashcards
+                  <Button onClick={() => setIsModalOpen(false)}>
+                    Criar
                   </Button>
                 </div>
-              </div>
-              <Input 
-                label="Texto base" 
-                name="content" 
-                placeholder="Cole ou digite o texto para gerar perguntas" 
-                required 
-                as="textarea"
-                rows={5}
-              />
-            </div>
-          </ModalBody>
-          <ModalFooter>
-            <div className="flex justify-end space-x-3">
-              <Button variant="outline" onClick={() => setIsModalOpen(false)}>
-                Cancelar
-              </Button>
-              <Button onClick={() => setIsModalOpen(false)}>
-                Criar
-              </Button>
-            </div>
-          </ModalFooter>
-        </Modal>
-      </div>
-    </Router>
+              </ModalFooter>
+            </Modal>
+          </div>
+        </Router>
+      </BossProvider>
+    </AuthProvider>
   );
 }
 
