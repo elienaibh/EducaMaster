@@ -1,6 +1,6 @@
 // src/App.jsx
 import React, { useState } from 'react';
-import { BrowserRouter as Router } from 'react-router-dom';
+import { Routes, Route, BrowserRouter as Router } from 'react-router-dom';
 import { BookOpen, Brain, LightbulbIcon, Code, Plus } from 'lucide-react';
 
 // Importar componentes
@@ -13,13 +13,135 @@ import Toggle from './components/ui/Toggle';
 import Tabs from './components/ui/Tabs';
 import Modal, { ModalHeader, ModalBody, ModalFooter } from './components/ui/Modal';
 import Input from './components/ui/Input';
-import AppRoutes from './routes/AppRoutes';
 
 // Importar novos providers
 import { AuthProvider } from './contexts/AuthContext';
 import { BossProvider } from './contexts/BossContext';
 
+// Páginas principais
+import HomePage from './pages/HomePage';
+import DashboardPage from './pages/DashboardPage';
+import LoginPage from './pages/AuthPage/LoginPage';
+import RegisterPage from './pages/AuthPage/RegisterPage';
+import NotFoundPage from './pages/NotFoundPage';
+
+// Páginas de Flashcards
+import FlashcardPage from './pages/FlashcardPage';
+import FlashcardStudyPage from './pages/FlashcardPage/FlashcardStudyPage';
+
+// Páginas de Quiz
+import QuizPage from './pages/QuizPage';
+import QuizPlayPage from './pages/QuizPage/QuizPlayPage';
+import QuizDetailsPage from './pages/QuizPage/QuizDetailsPage';
+
+// Páginas de Programação
+import ProgrammingPage from './pages/ProgrammingPage';
+import ChallengePage from './pages/ProgrammingPage/ChallengePage';
+
+// Páginas de Idiomas
+import LanguagePage from './pages/LanguagePage';
+import AudioSyncPage from './pages/LanguagePage/AudioSyncPage';
+
+// Outras páginas
+import ProfilePage from './pages/ProfilePage';
+import SettingsPage from './pages/SettingsPage';
+
+// Layout principal (assumindo que você tem um MainLayout)
+import MainLayout from './components/layout/MainLayout';
+
 function App() {
+  return (
+    <AuthProvider>
+      <BossProvider>
+        <Router>
+          <Routes>
+            {/* Rotas públicas */}
+            <Route path="/" element={<HomePage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+
+            {/* Rotas autenticadas */}
+            <Route path="/dashboard" element={
+              <MainLayout>
+                <DashboardContent />
+              </MainLayout>
+            } />
+
+            {/* Rotas de Flashcards */}
+            <Route path="/flashcards" element={
+              <MainLayout>
+                <FlashcardPage />
+              </MainLayout>
+            } />
+            <Route path="/flashcards/:id" element={
+              <MainLayout>
+                <FlashcardStudyPage />
+              </MainLayout>
+            } />
+
+            {/* Rotas de Quiz */}
+            <Route path="/quiz" element={
+              <MainLayout>
+                <QuizPage />
+              </MainLayout>
+            } />
+            <Route path="/quiz/:id" element={
+              <MainLayout>
+                <QuizDetailsPage />
+              </MainLayout>
+            } />
+            <Route path="/quiz/:id/play" element={
+              <MainLayout>
+                <QuizPlayPage />
+              </MainLayout>
+            } />
+
+            {/* Rotas de Programação */}
+            <Route path="/programming" element={
+              <MainLayout>
+                <ProgrammingPage />
+              </MainLayout>
+            } />
+            <Route path="/programming/:id" element={
+              <MainLayout>
+                <ChallengePage />
+              </MainLayout>
+            } />
+
+            {/* Rotas de Idiomas */}
+            <Route path="/language" element={
+              <MainLayout>
+                <LanguagePage />
+              </MainLayout>
+            } />
+            <Route path="/language/audio-sync/:id" element={
+              <MainLayout>
+                <AudioSyncPage />
+              </MainLayout>
+            } />
+
+            {/* Outras rotas */}
+            <Route path="/profile" element={
+              <MainLayout>
+                <ProfilePage />
+              </MainLayout>
+            } />
+            <Route path="/settings" element={
+              <MainLayout>
+                <SettingsPage />
+              </MainLayout>
+            } />
+
+            {/* Rota de página não encontrada */}
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+        </Router>
+      </BossProvider>
+    </AuthProvider>
+  );
+}
+
+function DashboardContent() {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [showNotifications, setShowNotifications] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -58,7 +180,7 @@ function App() {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-primary-50 p-4 rounded-lg">
             <div className="flex items-center justify-between mb-2">
               <h3 className="font-medium">Mestre do Esquecimento</h3>
@@ -72,7 +194,7 @@ function App() {
               <Button variant="danger">Atacar boss</Button>
             </div>
           </div>
-          
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <h3 className="font-bold mb-3">Quizzes Recomendados</h3>
@@ -89,7 +211,7 @@ function App() {
                 </div>
               </div>
             </div>
-            
+
             <div>
               <h3 className="font-bold mb-3">Flashcards para Revisar</h3>
               <div className="space-y-3">
@@ -118,15 +240,15 @@ function App() {
         <div>
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-bold">Seus Quizzes</h3>
-            <Button 
-              size="sm" 
+            <Button
+              size="sm"
               icon={<Plus className="w-4 h-4" />}
               onClick={() => setIsModalOpen(true)}
             >
               Novo Quiz
             </Button>
           </div>
-          
+
           <div className="space-y-4">
             <div className="p-4 border rounded-lg border-neutral-200">
               <div className="flex justify-between">
@@ -139,7 +261,7 @@ function App() {
                 <Button variant="outline" size="sm">Estatísticas</Button>
               </div>
             </div>
-            
+
             <div className="p-4 border rounded-lg border-neutral-200">
               <div className="flex justify-between">
                 <h4 className="font-medium">História do Brasil</h4>
@@ -151,7 +273,7 @@ function App() {
                 <Button variant="outline" size="sm">Reiniciar</Button>
               </div>
             </div>
-            
+
             <div className="p-4 border rounded-lg border-neutral-200">
               <div className="flex justify-between">
                 <h4 className="font-medium">Geografia Mundial</h4>
@@ -175,15 +297,15 @@ function App() {
         <div>
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-bold">Seus Flashcards</h3>
-            <Button 
-              size="sm" 
+            <Button
+              size="sm"
               icon={<Plus className="w-4 h-4" />}
               onClick={() => setIsModalOpen(true)}
             >
               Novo Deck
             </Button>
           </div>
-          
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
             <div className="p-4 border rounded-lg border-neutral-200">
               <h4 className="font-medium">Biologia</h4>
@@ -193,7 +315,7 @@ function App() {
                 <Button size="sm">Revisar</Button>
               </div>
             </div>
-            
+
             <div className="p-4 border rounded-lg border-neutral-200">
               <h4 className="font-medium">Vocabulário de Inglês</h4>
               <p className="text-sm text-neutral-600 my-2">20 cartões • Próxima revisão: Hoje</p>
@@ -202,7 +324,7 @@ function App() {
                 <Button size="sm">Revisar</Button>
               </div>
             </div>
-            
+
             <div className="p-4 border rounded-lg border-neutral-200">
               <h4 className="font-medium">Química Orgânica</h4>
               <p className="text-sm text-neutral-600 my-2">25 cartões • Próxima revisão: Amanhã</p>
@@ -211,7 +333,7 @@ function App() {
                 <Button size="sm">Revisar</Button>
               </div>
             </div>
-            
+
             <div className="p-4 border rounded-lg border-neutral-200">
               <h4 className="font-medium">Fórmulas Matemáticas</h4>
               <p className="text-sm text-neutral-600 my-2">18 cartões • Próxima revisão: Em 2 dias</p>
@@ -235,7 +357,7 @@ function App() {
             Aprenda programação através de desafios práticos e interativos.
             Cada desafio concluído causa dano ao Boss e desbloqueia novas habilidades.
           </p>
-          
+
           <div className="mb-6">
             <h4 className="font-medium mb-2">Seu progresso</h4>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
@@ -253,7 +375,7 @@ function App() {
               </div>
             </div>
           </div>
-          
+
           <div>
             <h4 className="font-medium mb-3">Desafios disponíveis</h4>
             <div className="space-y-4">
@@ -267,7 +389,7 @@ function App() {
                 </p>
                 <Button size="sm">Iniciar desafio</Button>
               </div>
-              
+
 
               <div className="p-4 border rounded-lg border-neutral-200">
                 <div className="flex justify-between">
@@ -279,7 +401,7 @@ function App() {
                 </p>
                 <Button size="sm">Iniciar desafio</Button>
               </div>
-              
+
               <div className="p-4 border rounded-lg border-neutral-200">
                 <div className="flex justify-between">
                   <h4 className="font-medium">Intermediário: Loops e Arrays</h4>
@@ -298,139 +420,133 @@ function App() {
   ];
 
   return (
-    <AuthProvider>
-      <BossProvider>
-        <Router>
-          <div className="min-h-screen bg-neutral-50 p-4 py-8">
-            <div className="max-w-6xl mx-auto">
-              <header className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <h1 className="text-3xl font-bold text-primary-600">EducaMaster AI</h1>
-                <div className="flex items-center gap-4">
-                  <Button variant="outline" size="sm" onClick={() => setIsModalOpen(true)}>
-                    Criar conteúdo
-                  </Button>
-                  <Avatar size="md" alt="Usuário" status="online" />
-                  <div>
-                    <p className="font-medium">João Silva</p>
-                    <p className="text-sm text-neutral-500">Nível 5</p>
+    <div className="min-h-screen bg-neutral-50 p-4 py-8">
+      <div className="max-w-6xl mx-auto">
+        <header className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <h1 className="text-3xl font-bold text-primary-600">EducaMaster AI</h1>
+          <div className="flex items-center gap-4">
+            <Button variant="outline" size="sm" onClick={() => setIsModalOpen(true)}>
+              Criar conteúdo
+            </Button>
+            <Avatar size="md" alt="Usuário" status="online" />
+            <div>
+              <p className="font-medium">João Silva</p>
+              <p className="text-sm text-neutral-500">Nível 5</p>
+            </div>
+          </div>
+        </header>
+
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          {/* Coluna Lateral */}
+          <div className="md:col-span-1">
+            <Card className="mb-6">
+              <div className="flex flex-col items-center">
+                <Avatar size="xl" alt="João Silva" status="online" />
+                <h2 className="mt-4 font-bold text-lg">João Silva</h2>
+                <p className="text-neutral-500 text-sm">Nível 5 • 2850 XP</p>
+
+                <div className="w-full mt-4">
+                  <div className="flex justify-between text-sm text-neutral-500 mb-1">
+                    <span>Progresso para Nível 6</span>
+                    <span>65%</span>
                   </div>
+                  <ProgressBar value={65} max={100} />
                 </div>
-              </header>
-              
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                {/* Coluna Lateral */}
-                <div className="md:col-span-1">
-                  <Card className="mb-6">
-                    <div className="flex flex-col items-center">
-                      <Avatar size="xl" alt="João Silva" status="online" />
-                      <h2 className="mt-4 font-bold text-lg">João Silva</h2>
-                      <p className="text-neutral-500 text-sm">Nível 5 • 2850 XP</p>
-                      
-                      <div className="w-full mt-4">
-                        <div className="flex justify-between text-sm text-neutral-500 mb-1">
-                          <span>Progresso para Nível 6</span>
-                          <span>65%</span>
-                        </div>
-                        <ProgressBar value={65} max={100} />
-                      </div>
-                      
-                      <div className="flex flex-wrap gap-2 mt-6 justify-center">
-                        <Badge variant="success">3 dias consecutivos</Badge>
-                        <Badge variant="primary">10 quizzes</Badge>
-                      </div>
-                      
-                      <Button className="mt-6 w-full">Ver perfil completo</Button>
-                    </div>
-                  </Card>
-                  
-                  <Card title="Configurações">
-                    <div className="space-y-4">
-                      <div className="flex justify-between items-center">
-                        <span className="text-neutral-700">Modo escuro</span>
-                        <Toggle checked={isDarkMode} onChange={setIsDarkMode} />
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-neutral-700">Notificações</span>
-                        <Toggle checked={showNotifications} onChange={setShowNotifications} />
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-neutral-700">Sons</span>
-                        <Toggle checked={true} onChange={() => {}} />
-                      </div>
-                    </div>
-                  </Card>
+
+                <div className="flex flex-wrap gap-2 mt-6 justify-center">
+                  <Badge variant="success">3 dias consecutivos</Badge>
+                  <Badge variant="primary">10 quizzes</Badge>
                 </div>
-                
-                {/* Conteúdo Principal */}
-                <div className="md:col-span-3">
-                  <Card>
-                    <Tabs tabs={tabsData} defaultTab="dashboard" />
-                  </Card>
+
+                <Button className="mt-6 w-full">Ver perfil completo</Button>
+              </div>
+            </Card>
+
+            <Card title="Configurações">
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-neutral-700">Modo escuro</span>
+                  <Toggle checked={isDarkMode} onChange={setIsDarkMode} />
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-neutral-700">Notificações</span>
+                  <Toggle checked={showNotifications} onChange={setShowNotifications} />
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-neutral-700">Sons</span>
+                  <Toggle checked={true} onChange={() => { }} />
                 </div>
               </div>
-            </div>
-            
-            {/* Modal para criar conteúdo */}
-            <Modal 
-              isOpen={isModalOpen} 
-              onClose={() => setIsModalOpen(false)}
-              size="md"
-            >
-              <ModalHeader onClose={() => setIsModalOpen(false)}>
-                Criar novo conteúdo
-              </ModalHeader>
-              <ModalBody>
-                <div className="space-y-4">
-                  <Input 
-                    label="Título" 
-                    name="title" 
-                    placeholder="Digite um título para o conteúdo" 
-                    required 
-                  />
-                  <div className="mb-4">
-                    <label className="block mb-2 font-medium text-neutral-700">
-                      Tipo de conteúdo
-                    </label>
-                    <div className="grid grid-cols-2 gap-2">
-                      <Button 
-                        variant="outline"
-                        className="justify-center py-3"
-                      >
-                        Quiz
-                      </Button>
-                      <Button 
-                        variant="outline"
-                        className="justify-center py-3"
-                      >
-                        Flashcards
-                      </Button>
-                    </div>
-                  </div>
-                  <Input 
-                    label="Texto base" 
-                    name="content" 
-                    placeholder="Cole ou digite o texto para gerar perguntas" 
-                    required 
-                    as="textarea"
-                    rows={5}
-                  />
-                </div>
-              </ModalBody>
-              <ModalFooter>
-                <div className="flex justify-end space-x-3">
-                  <Button variant="outline" onClick={() => setIsModalOpen(false)}>
-                    Cancelar
-                  </Button>
-                  <Button onClick={() => setIsModalOpen(false)}>
-                    Criar
-                  </Button>
-                </div>
-              </ModalFooter>
-            </Modal>
+            </Card>
           </div>
-        </Router>
-      </BossProvider>
-    </AuthProvider>
+
+          {/* Conteúdo Principal */}
+          <div className="md:col-span-3">
+            <Card>
+              <Tabs tabs={tabsData} defaultTab="dashboard" />
+            </Card>
+          </div>
+        </div>
+      </div>
+
+      {/* Modal para criar conteúdo */}
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        size="md"
+      >
+        <ModalHeader onClose={() => setIsModalOpen(false)}>
+          Criar novo conteúdo
+        </ModalHeader>
+        <ModalBody>
+          <div className="space-y-4">
+            <Input
+              label="Título"
+              name="title"
+              placeholder="Digite um título para o conteúdo"
+              required
+            />
+            <div className="mb-4">
+              <label className="block mb-2 font-medium text-neutral-700">
+                Tipo de conteúdo
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                <Button
+                  variant="outline"
+                  className="justify-center py-3"
+                >
+                  Quiz
+                </Button>
+                <Button
+                  variant="outline"
+                  className="justify-center py-3"
+                >
+                  Flashcards
+                </Button>
+              </div>
+            </div>
+            <Input
+              label="Texto base"
+              name="content"
+              placeholder="Cole ou digite o texto para gerar perguntas"
+              required
+              as="textarea"
+              rows={5}
+            />
+          </div>
+        </ModalBody>
+        <ModalFooter>
+          <div className="flex justify-end space-x-3">
+            <Button variant="outline" onClick={() => setIsModalOpen(false)}>
+              Cancelar
+            </Button>
+            <Button onClick={() => setIsModalOpen(false)}>
+              Criar
+            </Button>
+          </div>
+        </ModalFooter>
+      </Modal>
+    </div>
   );
 }
 

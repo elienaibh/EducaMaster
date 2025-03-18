@@ -1,5 +1,4 @@
 // src/components/boss/BossAttack/index.jsx
-
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Zap, Award, Sword, Shield } from 'lucide-react';
