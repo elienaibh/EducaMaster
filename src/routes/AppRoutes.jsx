@@ -13,8 +13,15 @@ import QuizDetailsPage from '../pages/QuizPage/QuizDetailsPage';
 import QuizPlayPage from '../pages/QuizPage/QuizPlayPage';
 import FlashcardPage from '../pages/FlashcardPage';
 import FlashcardStudyPage from '../pages/FlashcardPage/FlashcardStudyPage';
+import FlashcardCreatePage from '../pages/FlashcardPage/FlashcardCreatePage';
+import FlashcardEditPage from '../pages/FlashcardPage/FlashcardEditPage';
+import FlashcardStatsPage from '../pages/FlashcardPage/FlashcardStatsPage';
 import ProgrammingPage from '../pages/ProgrammingPage';
+import ChallengePage from '../pages/ProgrammingPage/ChallengePage';
 import LanguagePage from '../pages/LanguagePage';
+import LanguageLessonsPage from '../pages/LanguagePage/LanguageLessonsPage';
+import AudioSyncPage from '../pages/LanguagePage/AudioSyncPage';
+import BossBattlePage from '../pages/BossBattlePage'; // Nova importação
 import ProfilePage from '../pages/ProfilePage';
 import SettingsPage from '../pages/SettingsPage';
 import LoginPage from '../pages/AuthPage/LoginPage';
@@ -49,6 +56,18 @@ const AppRoutes = () => {
           <ProtectedRoute>
             <MainLayout>
               <DashboardPage />
+            </MainLayout>
+          </ProtectedRoute>
+        } 
+      />
+      
+      {/* Rota do Boss Battle */}
+      <Route 
+        path="/boss" 
+        element={
+          <ProtectedRoute>
+            <MainLayout>
+              <BossBattlePage />
             </MainLayout>
           </ProtectedRoute>
         } 
@@ -107,6 +126,36 @@ const AppRoutes = () => {
           </ProtectedRoute>
         } 
       />
+      <Route 
+        path="/flashcards/create" 
+        element={
+          <ProtectedRoute>
+            <MainLayout>
+              <FlashcardCreatePage />
+            </MainLayout>
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/flashcards/:id/edit" 
+        element={
+          <ProtectedRoute>
+            <MainLayout>
+              <FlashcardEditPage />
+            </MainLayout>
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/flashcards/:id/stats" 
+        element={
+          <ProtectedRoute>
+            <MainLayout>
+              <FlashcardStatsPage />
+            </MainLayout>
+          </ProtectedRoute>
+        } 
+      />
       
       {/* Rotas de Programação */}
       <Route 
@@ -119,6 +168,16 @@ const AppRoutes = () => {
           </ProtectedRoute>
         } 
       />
+      <Route 
+        path="/programming/:id" 
+        element={
+          <ProtectedRoute>
+            <MainLayout>
+              <ChallengePage />
+            </MainLayout>
+          </ProtectedRoute>
+        } 
+      />
       
       {/* Rotas de Idiomas */}
       <Route 
@@ -127,6 +186,26 @@ const AppRoutes = () => {
           <ProtectedRoute>
             <MainLayout>
               <LanguagePage />
+            </MainLayout>
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/language/:id" 
+        element={
+          <ProtectedRoute>
+            <MainLayout>
+              <LanguageLessonsPage />
+            </MainLayout>
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/language/audio-sync/:id" 
+        element={
+          <ProtectedRoute>
+            <MainLayout>
+              <AudioSyncPage />
             </MainLayout>
           </ProtectedRoute>
         } 
