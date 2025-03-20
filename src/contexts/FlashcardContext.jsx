@@ -1,4 +1,4 @@
-// src/contexts/FlashcardContext.jsx
+// src/contexts/FlashcardContext.jsx (versão corrigida)
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import aiService from '../services/ai/aiService';
 import useLocalStorage from '../hooks/useLocalStorage';
@@ -21,8 +21,16 @@ export const FlashcardProvider = ({ children }) => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const { damageBoss } = useBoss();
+  
+  // Usando um valor padrão para o caso de useBoss() retornar undefined
+  const bossContext = useBoss();
+  // Definindo uma função noop (não faz nada) como fallback
+  const damageBoss = bossContext?.damageBoss || ((amount, source) => {
+    console.log('Boss damage not available:', amount, source);
+  });
 
+  // Restante do código permanece igual...
+  
   // Carregar decks mockados para desenvolvimento
   useEffect(() => {
     // Se não existirem decks salvos, criar alguns de exemplo

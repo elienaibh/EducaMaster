@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EducaMaster AI - Offline</title>
+  <link rel="icon" href="/favicon.ico" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f7f9fc;
+      color: #333;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 40px 20px;
+      text-align: center;
+    }
+
+    .logo {
+      width: 120px;
+      height: auto;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      font-size: 28px;
+      margin-bottom: 16px;
+      color: #2563eb;
+    }
+
+    p {
+      margin-bottom: 24px;
+      color: #64748b;
+    }
+
+    .connection-status {
+      display: inline-block;
+      padding: 8px 16px;
+      background-color: #ef4444;
+      color: white;
+      border-radius: 20px;
+      font-size: 14px;
+      margin-bottom: 32px;
+    }
+
+    .features {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    @media (min-width: 480px) {
+      .features {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .feature {
+      background-color: white;
+      padding: 24px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .feature h3 {
+      font-size: 18px;
+      margin-bottom: 8px;
+      color: #1e40af;
+    }
+
+    .feature p {
+      font-size: 14px;
+      color: #64748b;
+      margin-bottom: 0;
+    }
+
+    .icon {
+      font-size: 24px;
+      margin-bottom: 16px;
+    }
+
+    .retry-button {
+      display: inline-block;
+      background-color: #2563eb;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: background-color 0.2s;
+    }
+
+    .retry-button:hover {
+      background-color: #1d4ed8;
+    }
+
+    .dark-mode {
+      background-color: #1e293b;
+      color: #f8fafc;
+    }
+
+    .dark-mode h1 {
+      color: #60a5fa;
+    }
+
+    .dark-mode p {
+      color: #cbd5e1;
+    }
+
+    .dark-mode .feature {
+      background-color: #334155;
+    }
+
+    .dark-mode .feature h3 {
+      color: #93c5fd;
+    }
+
+    .dark-mode .feature p {
+      color: #cbd5e1;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <img src="/logo192.png" alt="EducaMaster AI Logo" class="logo">
+    <h1>EducaMaster AI - Modo Offline</h1>
+    
+    <div class="connection-status">
+      Sem conexão com a internet
+    </div>
+    
+    <p>
+      Parece que você está offline no momento. Algumas funcionalidades do EducaMaster AI estão disponíveis offline, 
+      mas para a experiência completa, você precisará de uma conexão com a internet.
+    </p>
+    
+    <div class="features">
+      <div class="feature">
+        <div class="icon">📚</div>
+        <h3>Flashcards Salvos</h3>
+        <p>Você ainda pode revisar flashcards que foram previamente carregados.</p>
+      </div>
+      
+      <div class="feature">
+        <div class="icon">✅</div>
+        <h3>Quizzes Baixados</h3>
+        <p>Quizzes que você já iniciou estão disponíveis para continuar.</p>
+      </div>
+      
+      <div class="feature">
+        <div class="icon">📈</div>
+        <h3>Progresso Salvo</h3>
+        <p>Seu progresso será sincronizado quando você ficar online novamente.</p>
+      </div>
+      
+      <div class="feature">
+        <div class="icon">🔄</div>
+        <h3>Sincronização Automática</h3>
+        <p>Todas as alterações serão sincronizadas quando você reconectar.</p>
+      </div>
+    </div>
+    
+    <a href="/" class="retry-button">Tentar Novamente</a>
+  </div>
+
+  <script>
+    // Verificar se o modo escuro está ativado
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if (prefersDark) {
+      document.body.classList.add('dark-mode');
+    }
+
+    // Monitorar mudanças na conexão
+    window.addEventListener('online', () => {
+      window.location.reload();
+    });
+
+    // Botão de tentar novamente
+    document.querySelector('.retry-button').addEventListener('click', (e) => {
+      e.preventDefault();
+      window.location.reload();
+    });
+  </script>
+</body>
+</html>

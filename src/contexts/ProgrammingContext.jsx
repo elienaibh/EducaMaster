@@ -22,7 +22,10 @@ export const ProgrammingProvider = ({ children }) => {
   const [currentChallenge, setCurrentChallenge] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const { damageBoss } = useBoss();
+  const bossContext = useBoss();
+const damageBoss = bossContext?.damageBoss || ((amount, source) => {
+  console.log('Boss damage not available in ProgrammingContext:', amount, source);
+});
 
   // Carregar desafios mockados para desenvolvimento
   useEffect(() => {

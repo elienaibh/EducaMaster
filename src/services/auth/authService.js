@@ -1,6 +1,6 @@
 // src/services/auth/authService.js
 
-import { apiClient } from '../api/apiClient';
+import  apiClient  from '../api/apiClient';
 
 /**
  * Serviço para autenticação e gerenciamento de usuários
