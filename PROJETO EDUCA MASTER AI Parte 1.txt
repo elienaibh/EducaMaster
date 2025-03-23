@@ -1,0 +1,393 @@
+### Especificação Detalhada de Integração com Sistemas de Pagamento
+
+**Arquitetura de Pagamentos:**
+
+- **Abordagem Multi-provedor:**
+  - Sistema principal: Stripe
+  - Sistema secundário: PayPal
+  - Processadores regionais específicos:
+    - PagSeguro/MercadoPago (América Latina)
+    - Alipay/WeChat Pay (Ásia)
+    - Adyen (Europa)
+  - Gateway de integração unificado
+
+- **Modelo de Integração:**
+  - **Microserviço Dedicado:**
+    - Serviço isolado para processamento de pagamentos
+    - Acesso restrito e auditado
+    - Logs detalhados de todas as transações
+    - Redundância e alta disponibilidade
+  
+  - **Comunicação:**
+    - APIs RESTful internas
+    - Comunicação assíncrona via filas para operações críticas
+    - Timeouts e retentativas configurados
+    - Circuit breakers para falhas de provedores
+
+- **Armazenamento de Dados:**
+  - Separação completa de dados de pagamento e dados de usuário
+  - Criptografia de ponta-a-ponta para dados sensíveis
+  - Conformidade PCI-DSS para armazenamento
+  - Tokens de pagamento em vez de dados reais
+
+**Fluxos de Pagamento:**
+
+- **Fluxo de Assinatura:**
+  1. **Seleção de Plano:**
+     - Apresentação de opções de planos (mensal/anual)
+     - Comparativo claro de benefícios
+     - Exibição transparente de preços (incluindo impostos)
+     - Opção de cupom promocional
+  
+  2. **Checkout:**
+     - Formulário de pagamento embutido
+     - Validação em tempo real de detalhes do cartão
+     - Opção "salvar forma de pagamento"
+     - Apresentação dos termos e condições
+  
+  3. **Processamento:**
+     - Autorização inicial de pagamento
+     - Criação do plano de assinaturas no gateway
+     - Provisionamento de acesso em paralelo
+     - Confirmação visual/email da assinatura
+  
+  4. **Pós-processamento:**
+     - Registro detalhado da transação
+     - Emissão de nota fiscal/fatura
+     - Evento para ativação de recursos premium
+     - Início de ciclo de faturamento
+
+- **Fluxo de Compras Pontuais (In-app):**
+  1. **Seleção de Item/Pacote:**
+     - Visualização detalhada do item
+     - Exibição de quantidade e preço
+     - Benefícios claros da compra
+  
+  2. **Checkout Rápido:**
+     - Uso de forma de pagamento salva (se disponível)
+     - Opção de pagamento com saldo de carteira virtual
+     - Autenticação de compra (senha/biometria em mobile)
+  
+  3. **Processamento:**
+     - Cobrança única no gateway de pagamento
+     - Confirmação imediata da transação
+     - Liberação instantânea do item adquirido
+  
+  4. **Pós-processamento:**
+     - Atualização de inventário virtual
+     - Registro na conta do usuário
+     - Recibo eletrônico
+
+- **Fluxo de Certificações:**
+  1. **Pré-requisitos:**
+     - Verificação de requisitos educacionais
+     - Validação de elegibilidade para certificação
+  
+  2. **Processo de Compra:**
+     - Seleção do nível de certificação
+     - Opções de pacotes (só certificado/com validação adicional)
+     - Checkout similar ao fluxo de compras pontuais
+  
+  3. **Emissão e Verificação:**
+     - Geração do certificado após confirmação de pagamento
+     - Registro na blockchain para verificação
+     - Disponibilização para download/compartilhamento
+     - URL permanente para verificação por terceiros
+
+- **Fluxo de Planos Institucionais:**
+  1. **Orçamento e Proposta:**
+     - Cálculo baseado em número de usuários
+     - Geração de proposta personalizada
+     - Aprovação por representante da instituição
+  
+  2. **Contratação:**
+     - Opções de pagamento corporativo (boleto, transferência)
+     - Faturamento mensal/anual conforme contrato
+     - Integração com sistemas de procurement (quando aplicável)
+  
+  3. **Provisionamento:**
+     - Criação de painel administrativo
+     - Alocação de licenças/assentos
+     - Configuração de integrações específicas
+     - Treinamento e onboarding
+
+**Métodos de Pagamento Suportados:**
+
+- **Cartões de Crédito/Débito:**
+  - Visa, Mastercard, American Express, Discover
+  - Suporte a cartões internacionais
+  - Tokenização para pagamentos recorrentes
+  - Suporte a 3D Secure 2.0/SCA
+
+- **Métodos Alternativos:**
+  - PayPal
+  - Apple Pay/Google Pay
+  - Transferência bancária
+  - Boleto (Brasil)
+  - PIX (Brasil)
+  - SEPA Direct Debit (Europa)
+
+- **Moedas e Localização:**
+  - Suporte multi-moeda (USD, EUR, BRL, GBP, etc.)
+  - Conversão de moeda transparente
+  - Preços localizados (incluindo impostos regionais)
+  - Adaptação a regulamentações locais
+
+- **Opções B2B:**
+  - Faturamento empresarial
+  - Ordens de compra
+  - Pagamento por invoice
+  - Suporte a compras por departamento/centro de custos
+
+**Gestão de Assinaturas:**
+
+- **Ciclos de Faturamento:**
+  - Mensal, trimestral, anual
+  - Datas de renovação consistentes
+  - Cálculo proporcional para upgrades/downgrades
+  - Opções de prepagamento com desconto
+
+- **Alterações de Plano:**
+  - Upgrade sem interrupção de serviço
+  - Downgrade efetivo no próximo ciclo
+  - Upgrade familiar (adicionar membros)
+  - Cálculo automático de diferenças de valores
+
+- **Renovações:**
+  - Notificações antecipadas (7/3/1 dias)
+  - Tentativas automatizadas em caso de falha
+  - Período de carência após falha (7 dias)
+  - Opções de renovação manual ou automática
+
+- **Cancelamentos:**
+  - Processo simplificado via self-service
+  - Pesquisa de motivo do cancelamento
+  - Ofertas de retenção contextuais
+  - Acesso até o fim do período pago
+  - Opção de reembolso proporcional
+
+**Segurança e Conformidade:**
+
+- **Padrões de Segurança:**
+  - Conformidade PCI DSS
+  - Criptografia TLS para todas as comunicações
+  - Tokenização de dados sensíveis de pagamento
+  - Acesso baseado em menor privilégio
+
+- **Detecção de Fraude:**
+  - Verificação de endereço (AVS)
+  - Código de segurança (CVV/CVC)
+  - Algoritmos de detecção de padrões suspeitos
+  - Limites de tentativas por conta/IP
+  - Verificação de dispositivo/localização
+
+- **Auditorias e Monitoramento:**
+  - Logs imutáveis de todas as transações
+  - Monitoramento em tempo real de atividades suspeitas
+  - Alertas para padrões anômalos
+  - Revisão periódica de segurança
+
+- **Regulação e Compliance:**
+  - Conformidade com GDPR/LGPD para dados pessoais
+  - Adaptação a regulamentações fiscais locais
+  - Suporte a requisitos regionais (ex: emissão de NF)
+  - Relatórios financeiros para auditoria
+
+**Gestão de Falhas e Conciliação:**
+
+- **Tratamento de Falhas:**
+  - Retentativas automáticas em falhas temporárias
+  - Fila de processamento para transactions pending
+  - Notificação ao usuário em caso de falha persistente
+  - Caminhos alternativos de pagamento
+
+- **Conciliação Financeira:**
+  - Reconciliação diária com gateways de pagamento
+  - Identificação automática de discrepâncias
+  - Relatórios detalhados para contabilidade
+  - APIs para integração com sistemas financeiros
+
+- **Estornos e Reembolsos:**
+  - Interface administrativa para processamento
+  - Fluxos automatizados para cancelamentos dentro da política
+  - Suporte a reembolsos parciais e totais
+  - Registro detalhado de motivos e aprovações
+
+- **Disputas e Chargebacks:**
+  - Notificação imediata de disputas
+  - Coleta automática de evidências
+  - Interface para gestão de contestações
+  - Análise de padrões para prevenção
+
+**Experiência de Usuário:**
+
+- **Interface de Checkout:**
+  - Design responsivo para todas plataformas
+  - Formulários simplificados (mínimo de campos)
+  - Validação em tempo real
+  - Progresso claro (breadcrumbs/stepper)
+  - Persistência em caso de erros/recarregamento
+
+- **Transparência:**
+  - Detalhamento claro de valores
+  - Exibição de impostos e taxas separadamente
+  - Termos de cancelamento/renovação explícitos
+  - Calendário visual para ciclos de cobrança
+
+- **Gestão de Conta:**
+  - Visualização de histórico de transações
+  - Download de faturas/recibos
+  - Atualização de formas de pagamento
+  - Visualização de status de assinatura
+  - Previsão de próximas cobranças
+
+- **Comunicações:**
+  - Emails de confirmação de pagamento
+  - Notificações de processamento de pagamento
+  - Alertas de falha de pagamento
+  - Lembretes de renovação
+  - Confirmação de alterações na assinatura
+
+**Métricas e Analytics:**
+
+- **KPIs de Negócio:**
+  - Receita recorrente mensal (MRR)
+  - Receita média por usuário (ARPU)
+  - Taxa de conversão do checkout
+  - Taxa de abandono do checkout
+  - Lifetime Value (LTV)
+
+- **Métricas Operacionais:**
+  - Taxa de falha de pagamento
+  - Taxa de chargebacks
+  - Tempo médio de processamento
+  - Distribuição por método de pagamento
+  - Distribuição por localização geográfica
+
+- **Dashboards:**
+  - Visão geral financeira em tempo real
+  - Análise de tendências de receita
+  - Monitoramento de taxas de erro
+  - Alertas para anomalias
+  - Previsões baseadas em histórico
+
+### Especificação Detalhada do Plano de Testes
+
+**Abordagem Geral de Testes:**
+
+- **Estratégia Multi-camada:**
+  - **Testes Unitários:** Verificação de componentes individuais
+  - **Testes de Integração:** Interação entre componentes
+  - **Testes End-to-End:** Fluxos completos de usuário
+  - **Testes de Carga e Performance:** Comportamento sob estresse
+  - **Testes de Usabilidade:** Experiência do usuário
+
+- **Cultura de Qualidade:**
+  - Abordagem "shift-left" (testes desde o início do desenvolvimento)
+  - Testes como parte do processo de desenvolvimento (TDD onde apropriado)
+  - Qualidade como responsabilidade de toda a equipe
+  - Automação como prioridade para testes recorrentes
+  - Feedback rápido sobre problemas de qualidade
+
+- **Pirâmide de Testes:**
+  - **Base (70%):** Testes unitários automatizados
+  - **Meio (20%):** Testes de integração automatizados
+  - **Topo (10%):** Testes E2E automatizados + manuais
+
+**Testes Unitários:**
+
+- **Escopo:**
+  - Funções e métodos individuais
+  - Componentes UI isolados
+  - Utilitários e bibliotecas
+  - Algoritmos críticos (IA, recomendação, adaptação)
+
+- **Ferramentas e Frameworks:**
+  - **Frontend:** Jest + React Testing Library
+  - **Backend:** Jest (Node.js) / PyTest (Python)
+  - **Stubs/Mocks:** Sinon.js, Jest mocks, Mock Service Worker
+  - **Cobertura:** Istanbul/NYC para JavaScript, Coverage.py para Python
+
+- **Padrões de Qualidade:**
+  - **Cobertura mínima:** 80% para código crítico, 70% para geral
+  - **Verificação automatizada:** Falha no build se abaixo do limite
+  - **Tipos de cobertura:** Declarações, ramificações, funções
+  - **Best practices:** Testes pequenos, independentes, determinísticos
+
+- **Estratégia de Mock:**
+  - Dependências externas sempre mockadas
+  - APIs internas mockadas para isolamento
+  - Dados de teste consistentes e representativos
+  - Banco de dados em memória para testes que requerem persistência
+
+**Testes de Integração:**
+
+- **Escopo:**
+  - Interação entre múltiplos componentes
+  - Fluxos de API completos
+  - Integração com bancos de dados
+  - Trabalho coordenado de microserviços
+
+- **Ferramentas e Abordagens:**
+  - **APIs:** Supertest, REST-assured
+  - **Backend:** Testcontainers (containers Docker para testes)
+  - **Frontend:** Cypress para integração de UI
+  - **Banco de Dados:** Migrations temporárias, dados de teste isolados
+
+- **Estratégias:**
+  - **Integração de Componentes:**
+    - Testes de integração entre componentes frontend
+    - Verificação de eventos, props e comunicação
+  
+  - **Integração de Serviços:**
+    - Teste de comunicação entre microserviços
+    - Validação de contratos (Contract Testing)
+    - Mensagens assíncronas e filas
+  
+  - **Integração com Banco de Dados:**
+    - Persistência e recuperação de dados
+    - Transações e operações ACID
+    - Performance de queries complexas
+
+**Testes End-to-End (E2E):**
+
+- **Escopo:**
+  - Fluxos completos do usuário (jornadas)
+  - Interações de UI reais
+  - Integrações com sistemas externos
+  - Cenários de negócio críticos
+
+- **Ferramentas:**
+  - **Web:** Cypress, Playwright
+  - **Mobile:** Appium, Detox
+  - **Visual Testing:** Percy, Applitools
+  - **Orquestração:** GitHub Actions, Jenkins
+
+- **Cenários Prioritários:**
+  - Onboarding e fluxo de registro
+  - Autenticação e autorização
+  - Fluxos de pagamento completos
+  - Jornadas de aprendizado principais
+  - Interações sociais e colaborativas
+  - Batalhas de Boss e avaliações
+
+- **Estratégia de Execução:**
+  - Execução completa em ambiente de staging antes de cada release
+  - Conjunto mínimo crítico em cada PR/merge para main
+  - Execução agendada noturna do conjunto completo
+  - Distribuição paralela para redução de tempo de execução
+
+**Testes de Performance:**
+
+- **Tipos de Testes:**
+  - **Teste de Carga:** Comportamento sob carga esperada
+  - **Teste de Estresse:** Comportamento no limite ou além da capacidade
+  - **Teste de Resistência:** Comportamento durante uso prolongado
+  - **Teste de Pico:** Comportamento sob aumentos súbitos de carga
+  - **Teste de Escalabilidade:** Verificação de capacidade de escalar
+
+- **Ferramentas:**
+  - JMeter para testes de API e carga
+  - K6 para scripts de teste baseados em JavaScript
+  - Lighthouse para performance de frontend
+  - Ferramentas de monitoramento (New Relic, Data

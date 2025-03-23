@@ -1,0 +1,364 @@
+**KPIs Técnicos para Monitoramento (continuação):**
+
+- **Saúde da Aplicação (continuação):**
+  - **Integridade de Dados:**
+    - Jobs de verificação diários com 100% de sucesso
+    - Divergência zero entre réplicas de banco de dados
+    - Resolução de inconsistências em < 1 hora
+
+- **Performance de Front-end:**
+  - **Web Vitals:**
+    - LCP (Largest Contentful Paint): < 2.5s
+    - FID (First Input Delay): < 100ms
+    - CLS (Cumulative Layout Shift): < 0.1
+    - Alerta: Degradação de 20% em qualquer métrica
+  
+  - **Métricas de Renderização:**
+    - FPS (Frames por segundo): > 55 FPS para animações
+    - Tempo de resposta para interação: < 50ms
+    - Jank (atrasos visuais): < 5% do tempo de uso
+  
+  - **Tamanho e Carregamento:**
+    - Tamanho total do bundle JS: < 500KB (gzipped)
+    - Total de requisições iniciais: < 30
+    - Taxa de cache hit: > 95% para assets estáticos
+
+- **Desempenho de IA e Algoritmos:**
+  - **Tempo de Recomendação:**
+    - Geração de recomendações: < 200ms
+    - Precisão das previsões: > 80% (vs. preferências reais)
+    - Diversidade de recomendações: Índice > 0.7
+  
+  - **Processamento de NLP:**
+    - Análise de resposta discursiva: < 1s
+    - Precisão na classificação semântica: > 85%
+    - Geração de perguntas: < 3s por conjunto
+  
+  - **Escalabilidade de IA:**
+    - Degradação < 15% em horários de pico
+    - Capacidade de servir 95% das requisições localmente (sem API externa)
+    - Utilização de cache para modelos de alta demanda: > 80%
+
+**Processos de Escalabilidade Automática:**
+
+- **Regras de Auto-Scaling:**
+  - **Serviços de Frontend:**
+    - Escala horizontal baseada em CPU e requisições/segundo
+    - Escala para cima: Utilização de CPU > 60% por 3 minutos
+    - Escala para baixo: Utilização de CPU < 30% por 10 minutos
+    - Incremento: 2 instâncias por vez
+    - Tempo de cooldown: 5 minutos
+  
+  - **API e Serviços de Backend:**
+    - Escala baseada em fila de requisições e latência
+    - Escala para cima: Latência média > 300ms por 2 minutos
+    - Escala para baixo: Utilização < 40% por 15 minutos
+    - Incremento: 3 instâncias por vez
+    - Tempo de cooldown: 3 minutos
+  
+  - **Serviços de Processamento:**
+    - Escala baseada em tamanho da fila
+    - Escala para cima: > 500 items na fila por 30 segundos
+    - Escala para baixo: < 100 items na fila por 5 minutos
+    - Incremento: 5 instâncias por vez
+    - Tempo de cooldown: 2 minutos
+
+- **Planejamento de Capacidade:**
+  - **Limites de Auto-Scaling:**
+    - Mínimo: Capacidade para 2.000 usuários simultâneos em todos os momentos
+    - Máximo: Até 10x do tráfego base (100.000 usuários)
+    - Reserva de capacidade para eventos programados (lançamentos, campanhas)
+  
+  - **Thresholds de Intervenção Manual:**
+    - Alerta em 80% da capacidade máxima configurada
+    - Alerta em projeção de crescimento > 40% acima do histórico
+    - Revisão manual de capacidade quando utilização sustentada > 70%
+
+- **Monitoramento de Escalabilidade:**
+  - Dashboard dedicado para métricas de auto-scaling
+  - Alertas para eventos de scale-up/down inesperados
+  - Revisão semanal de padrões de carga
+  - Análise mensal de eficiência econômica da escalabilidade
+
+### Especificação Detalhada do Plano de Manutenção
+
+**Estratégia de Desenvolvimento Contínuo:**
+
+- **Ciclos de Desenvolvimento:**
+  - **Sprints:** Ciclos de 2 semanas
+  - **Releases Menores:** A cada 4 semanas (bi-sprint)
+  - **Releases Maiores:** A cada 12 semanas (trimestral)
+  - **Atualizações de Emergência:** Conforme necessário (hotfixes)
+
+- **Ambientes de Desenvolvimento:**
+  - **Desenvolvimento:** Para trabalho ativo de codificação
+  - **Teste:** Para QA e testes automatizados
+  - **Staging:** Espelho do ambiente de produção para validação final
+  - **Produção:** Ambiente de usuário final
+  - **Canário:** Subconjunto de produção para testes com tráfego real
+
+- **Estratégia de Branches:**
+  - **Main/Master:** Sempre em estado implementável
+  - **Develop:** Integração contínua de features
+  - **Feature branches:** Para desenvolvimento de funcionalidades
+  - **Release branches:** Para preparação de releases
+  - **Hotfix branches:** Para correções urgentes em produção
+
+- **Controles de Qualidade:**
+  - Code reviews obrigatórios (mínimo 1 aprovador)
+  - Testes automatizados com cobertura mínima de 80%
+  - Linting e análise estática de código
+  - Verificações de segurança automatizadas
+  - Testes de performance para componentes críticos
+
+**Processo de Atualizações:**
+
+- **Tipos de Atualizações:**
+  1. **Patch (v1.0.X):**
+     - Correções de bugs
+     - Ajustes menores de UI
+     - Melhorias de performance sem alterações visíveis
+     - Frequência: Bi-semanal
+  
+  2. **Minor (v1.X.0):**
+     - Novas funcionalidades pequenas/médias
+     - Melhorias em features existentes
+     - Alterações visuais moderadas
+     - Frequência: Mensal
+  
+  3. **Major (vX.0.0):**
+     - Redesigns significativos
+     - Novas áreas da plataforma
+     - Mudanças fundamentais na arquitetura
+     - Frequência: Trimestral/Semestral
+
+- **Processo de Deployment:**
+  1. **Planejamento:**
+     - Definição do escopo da atualização
+     - Avaliação de riscos e plano de contingência
+     - Comunicação a stakeholders internos
+  
+  2. **Pré-Deployment:**
+     - Testes completos em ambiente de staging
+     - Criação de runbook para o deployment
+     - Preparação de rollback plan
+     - Escalonamento de equipe de suporte
+  
+  3. **Deployment:**
+     - Janela de manutenção programada (quando necessária)
+     - Deployment gradual (10% → 25% → 50% → 100%)
+     - Monitoramento ativo de métricas-chave
+     - Comunicação em tempo real da equipe
+  
+  4. **Pós-Deployment:**
+     - Verificações automáticas e manuais
+     - Período de observação intensificada (12-24h)
+     - Análise de logs e métricas de performance
+     - Documentação do processo e lições aprendidas
+
+- **Comunicação de Atualizações:**
+  - **Para Usuários:**
+    - Notificações in-app 72h antes (para major/minor)
+    - Blog post com changelog detalhado
+    - Email para updates significativos
+    - Vídeos curtos para novas funcionalidades
+  
+  - **Para Equipe Interna:**
+    - Documentação técnica no wiki interno
+    - Sessões de handoff entre Produto e Suporte
+    - Treinamento para equipe de suporte ao cliente
+    - Dashboard de status de deployment
+
+**Processo de Backup:**
+
+- **Estratégia de Backup:**
+  - **Backup Incremental:** A cada 6 horas
+  - **Backup Completo:** Diário (01:00 AM UTC)
+  - **Retenção Curta:** 7 dias completos
+  - **Retenção Média:** 4 backups semanais
+  - **Retenção Longa:** 12 backups mensais
+  - **Retenção Permanente:** Snapshots trimestrais arquivados
+
+- **Abrangência:**
+  - **Banco de Dados:** Backup completo + logs transacionais
+  - **Arquivos de Usuário:** Backup incremental
+  - **Código e Configuração:** Versionado em repositório Git
+  - **Infraestrutura-como-Código:** Templates e configurações
+  - **Logs Críticos:** Armazenados por 90 dias mínimo
+
+- **Localização:**
+  - Backup primário: Mesmo provedor cloud, região diferente
+  - Backup secundário: Provedor cloud alternativo
+  - Cópia offline: Armazenamento frio para backups trimestrais
+
+- **Segurança:**
+  - Criptografia AES-256 para todos os backups
+  - Chaves de criptografia gerenciadas em HSM
+  - Acesso limitado à equipe de operações sênior
+  - Validação de integridade após cada backup
+
+- **Testes de Restauração:**
+  - Testes completos mensais em ambiente de staging
+  - Testes de componentes individuais semanais
+  - Simulações de desastres trimestrais
+  - Documentação do tempo de restauração
+
+**Monitoramento e Resolução de Problemas:**
+
+- **Sistema de Monitoramento:**
+  - **Monitoramento de Infraestrutura:**
+    - Métricas de CPU, memória, disco, rede
+    - Disponibilidade de serviços
+    - Tempo de resposta de APIs
+    - Capacidade e utilização de recursos
+  
+  - **Monitoramento de Aplicação:**
+    - Rastreamento de transações
+    - Logs de erro e exceções
+    - Tempo de resposta de endpoints
+    - Métricas de cache e queries
+  
+  - **Monitoramento de Experiência do Usuário:**
+    - Real User Monitoring (RUM)
+    - Rastreamento de erros de frontend
+    - Tempos de carregamento de página
+    - Taxas de abandono em fluxos críticos
+
+- **Alertas:**
+  - **Severidade 1 (Crítica):**
+    - Página indisponível ou erro 500 generalizado
+    - Latência > 5s em endpoints críticos
+    - Erro de autenticação em massa
+    - Notificação: Pager, SMS, ligação
+    - SLA: 5 minutos para resposta inicial
+  
+  - **Severidade 2 (Alta):**
+    - Funcionalidade principal degradada
+    - Latência > 2s em endpoints críticos
+    - Erro afetando um subconjunto de usuários
+    - Notificação: Slack, SMS
+    - SLA: 15 minutos para resposta inicial
+  
+  - **Severidade 3 (Média):**
+    - Funcionalidade secundária indisponível
+    - Performance degradada não-crítica
+    - Erros intermitentes com workaround
+    - Notificação: Slack, Email
+    - SLA: 1 hora para resposta inicial
+  
+  - **Severidade 4 (Baixa):**
+    - Problemas cosméticos
+    - Otimizações necessárias
+    - Erros não-bloqueantes
+    - Notificação: Ticket no sistema
+    - SLA: Próximo dia útil
+
+- **Processo de Incidentes:**
+  1. **Detecção:**
+     - Alerta automático ou report manual
+     - Classificação inicial de severidade
+     - Notificação da equipe apropriada
+  
+  2. **Resposta:**
+     - Confirmação e refinamento da severidade
+     - Designação de Incident Commander
+     - Criação de canal de comunicação dedicado
+     - Notificação a stakeholders
+  
+  3. **Mitigação:**
+     - Identificação da causa raiz
+     - Implementação de solução temporária
+     - Validação da resolução
+     - Comunicação a usuários afetados
+  
+  4. **Resolução:**
+     - Implementação de correção permanente
+     - Testes de verificação
+     - Atualização de documentação
+     - Encerramento formal do incidente
+  
+  5. **Análise Pós-Incidente:**
+     - Sessão de "blameless postmortem"
+     - Documentação de lições aprendidas
+     - Identificação de melhorias
+     - Adição de novos testes para prevenção
+
+**Gerenciamento de Capacidade e Escalabilidade:**
+
+- **Planejamento de Capacidade:**
+  - Revisão mensal de métricas de utilização
+  - Projeções de crescimento trimestral
+  - Testes de carga semestrais
+  - Plano de capacidade anual
+
+- **Thresholds de Escalabilidade:**
+  - CPU: auto-scaling em 70% de utilização sustentada
+  - Memória: auto-scaling em 80% de utilização
+  - Throughput de DB: escalar acima de 75% da capacidade máxima
+  - Latência: adicionar capacidade quando > 500ms por 5 minutos
+
+- **Estratégias de Escalabilidade:**
+  - **Horizontal:** Adição de nódulos para serviços stateless
+  - **Vertical:** Aumento de recursos para databases
+  - **Caching:** Implementação de camadas adicionais de cache
+  - **Particionamento:** Sharding de dados por região/domínio
+
+- **Reserva de Capacidade:**
+  - 30% de capacidade extra para picos inesperados
+  - Capacidade de processamento para 2x o tráfego médio
+  - Previsão específica para eventos sazonais (ex: início de período letivo)
+  - Acordos com provedores cloud para scaling rápido
+
+**Gestão de Dependências Externas:**
+
+- **Inventário de Dependências:**
+  - Listagem completa de serviços e bibliotecas de terceiros
+  - Classificação por criticidade (Alta, Média, Baixa)
+  - Documentação de alternativas para serviços críticos
+  - Mapeamento de dependências entre componentes
+
+- **Monitoramento de Versões:**
+  - Verificação semanal de atualizações de segurança
+  - Verificação mensal de atualizações normais
+  - Plano de upgrade para dependências obsoletas
+  - Notificações automáticas de vulnerabilidades
+
+- **Política de Atualização:**
+  - Patches de segurança: Máximo 7 dias para aplicação
+  - Updates menores: Avaliação mensal
+  - Updates maiores: Plano de migração com testes extensivos
+  - EOL (End of Life): Migração iniciada 6 meses antes
+
+- **Planos de Contingência:**
+  - Alternativas documentadas para serviços críticos
+  - Capacidade de fallback para versões anteriores
+  - Cache estendido para tolerância a falhas temporárias
+  - Simulações periódicas de indisponibilidade
+
+**Documentação Técnica:**
+
+- **Repositório Central:**
+  - Wiki interno com controle de versão
+  - Sistema de aprovação para mudanças significativas
+  - Notificações para áreas de interesse
+  - Búsqueda e indexação avançada
+
+- **Tipos de Documentação:**
+  - **Arquitetura:** Componentes principais e suas interações
+  - **Operações:** Runbooks, processos de manutenção
+  - **Desenvolvimento:** Padrões, convenções, tutoriais
+  - **API:** Documentação automática via OpenAPI/Swagger
+  - **Infraestrutura:** Diagramas, configurações, IaC
+
+- **Ciclo de Vida da Documentação:**
+  - Criação como parte do processo de desenvolvimento
+  - Revisão em cada release relevante
+  - Atualização obrigatória em mudanças de arquitetura
+  - Arquivamento de documentação obsoleta
+  - Revisão completa semestral
+
+- **Formatos e Templates:**
+  - Templates padronizados por tipo de documento
+  - Markdown para compatibilidade e portabilidade
+  - Ferramentas de diagrama integradas (Draw.io, Mermaid)
+  - Snippets de código com sintaxe highlighting

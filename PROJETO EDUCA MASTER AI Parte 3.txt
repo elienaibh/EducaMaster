@@ -1,0 +1,178 @@
+### Especificação Detalhada das Métricas de Desempenho do Sistema
+
+**Métricas de Tempo de Resposta:**
+
+- **Endpoints de API:**
+  - **Críticos (autenticação, carregamento de conteúdo):**
+    - Meta p50: < 100ms
+    - Meta p90: < 200ms
+    - Meta p99: < 500ms
+    - Limite de alerta: > 1000ms por 1 minuto
+  
+  - **Normais (atualizações, submissões, buscas):**
+    - Meta p50: < 200ms
+    - Meta p90: < 400ms
+    - Meta p99: < 800ms
+    - Limite de alerta: > 1500ms por 2 minutos
+  
+  - **Background (analytics, sincronização):**
+    - Meta p50: < 500ms
+    - Meta p90: < 1s
+    - Meta p99: < 2s
+    - Limite de alerta: > 5s por 5 minutos
+
+- **Carregamento de Página:**
+  - **Primeira Renderização Significativa (FMP):**
+    - Desktop: < 1.2s
+    - Mobile: < 1.8s
+    - Limite de alerta: > 3s para 10% dos usuários
+  
+  - **Tempo de Interatividade (TTI):**
+    - Desktop: < 2.5s
+    - Mobile: < 3.5s
+    - Limite de alerta: > 5s para 10% dos usuários
+  
+  - **Carregamento Completo:**
+    - Desktop: < 3s
+    - Mobile: < 5s
+    - Limite de alerta: > 8s para 10% dos usuários
+
+- **Operações de Banco de Dados:**
+  - **Leituras Simples:**
+    - < 20ms para p95
+    - Limite: > 100ms dispara investigação
+  
+  - **Leituras Complexas:**
+    - < 100ms para p95
+    - Limite: > 500ms dispara investigação
+  
+  - **Escritas:**
+    - < 50ms para p95
+    - Limite: > 200ms dispara investigação
+
+- **Processamento em Background:**
+  - **Geração de Material Adaptativo:**
+    - < 5s para 90% dos casos
+    - < 30s para casos complexos
+    - Limite: > 2 minutos requer otimização
+  
+  - **Análise de Desempenho do Usuário:**
+    - Processamento em batch: < 1 hora
+    - Atualizações incrementais: < 5 minutos
+    - Limite: atraso > 2 horas gera alerta
+
+**Métricas de Disponibilidade:**
+
+- **SLAs (Service Level Agreements):**
+  - **Plataforma Principal:**
+    - Disponibilidade: 99.95% (≈ 22 minutos de inatividade/mês)
+    - Medição: Min-to-min, excluindo manutenções programadas
+    - Meta de MTTR (Mean Time to Recovery): < 30 minutos
+  
+  - **APIs Públicas:**
+    - Disponibilidade: 99.9% (≈ 43 minutos de inatividade/mês)
+    - Medição: Min-to-min, incluindo manutenções
+    - Meta de MTTR: < 45 minutos
+  
+  - **Funcionalidades Não-Críticas:**
+    - Disponibilidade: 99.5% (≈ 3.6 horas de inatividade/mês)
+    - Medição: Hora-a-hora
+    - Meta de MTTR: < 4 horas
+
+- **Monitoramento de Disponibilidade:**
+  - **Frequência de Health Checks:**
+    - Interno: A cada 10 segundos
+    - Externo: A cada 1 minuto de múltiplas localizações
+  
+  - **Definição de "Indisponível":**
+    - 2 health checks consecutivos falhos
+    - Tempo de resposta excedendo 10 segundos
+    - Taxa de erro > 10% por 3 minutos
+  
+  - **Recovery Automation:**
+    - Auto-healing em 5 minutos para falhas conhecidas
+    - Procedimentos de failover automático entre regiões
+    - Escalonamento para equipe após 2 tentativas de auto-recuperação
+
+**Métricas de Escalabilidade:**
+
+- **Capacidade do Sistema:**
+  - **Usuários Simultâneos:**
+    - Base: 10.000 usuários ativos simultaneamente
+    - Pico: Capacidade para 50.000 usuários (5x a base)
+    - Escalabilidade: Suporte a crescimento de 10x em 12 meses
+  
+  - **Throughput de Transações:**
+    - API: 5.000 requisições por segundo sustentado
+    - Database: 3.000 operações por segundo
+    - Escalabilidade horizontal para 3x este throughput em 30 minutos
+  
+  - **Volume de Dados:**
+    - Crescimento projetado: 500GB/mês de dados de usuário
+    - Crescimento de conteúdo: 100GB/mês
+    - Plano de particionamento acima de 1TB de dados ativos
+
+- **Comportamento sob Carga:**
+  - **Testes de Carga Periódicos:**
+    - Normal (1x carga esperada): Sem degradação de performance
+    - Alto (2x carga esperada): Degradação < 20% em métricas
+    - Extremo (3x carga esperada): Sistema funcional, com degradação aceitável
+    - Sobrecarga (5x carga esperada): Sem falhas catastróficas, apenas degradação
+  
+  - **Pontos de Auto-escala:**
+    - CPU: Escalar em 70% de utilização por 3 minutos
+    - Memória: Escalar em 80% de utilização por 3 minutos
+    - Fila de processamento: Escalar quando > 1000 itens pendentes
+    - Conexões de DB: Escalar em 70% do pool utilizado
+
+- **Testes de Resistência (Disaster Recovery):**
+  - Simulação de falha de região: RTO < 15 minutos, RPO < 5 minutos
+  - Simulação de corrupção de dados: Restauração em < 30 minutos
+  - Simulação de ataque DDoS: Mitigação em < 10 minutos
+
+**Métricas de Eficiência de Recursos:**
+
+- **Utilização de Recursos:**
+  - **CPU:**
+    - Média: < 40% em condições normais
+    - Pico: < 70% em condições de pico previsíveis
+    - Medição: Média por minuto
+  
+  - **Memória:**
+    - Utilização base: < 60% de memória disponível
+    - Crescimento controlado: < 2% por hora em operação contínua
+    - Vazamentos: Zero tolerância para vazamentos detectáveis
+  
+  - **Armazenamento:**
+    - Eficiência de queries: < 10% de leituras full-table
+    - Índices utilizados: > 95% das queries devem usar índices
+    - Cache hit ratio: > 90% para dados frequentes
+
+- **Custos de Operação:**
+  - **Cost per Request (CPR):**
+    - Meta: < $0.0001 por requisição de API
+    - Monitoramento: Redução de 5% no CPR a cada trimestre
+  
+  - **Custo por Usuário Ativo:**
+    - Meta: < $0.50 por usuário ativo mensal
+    - Eficiência de escala: Redução de 15% no custo por usuário ao dobrar a base
+  
+  - **Relação Custo-Receita:**
+    - Infraestrutura: < 15% da receita
+    - Transferência de dados: < 5% da receita
+    - Otimizações pontuais identificadas para itens > 3% do custo total
+
+**KPIs Técnicos para Monitoramento:**
+
+- **Saúde da Aplicação:**
+  - **Taxa de Erro:**
+    - API: < 0.1% de respostas com erro (excluindo erros 4xx)
+    - Frontend: < 0.05% de erros de Javascript
+    - Backend: < 0.01% de exceções não tratadas
+    - Alerta: Aumento súbito de 3x na taxa de erro de base
+  
+  - **Recursos do Sistema:**
+    - Utilização de Threads: < 80% do pool
+    - Utilização de Conexões: < 80% do pool disponível
+    - File Descriptors: < 70% do limite configurado
+    - Alerta: Qualquer recurso acima de 90% por > 5 minutos

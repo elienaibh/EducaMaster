@@ -1,0 +1,263 @@
+### Especificação Detalhada de Integração com Sistemas de Pagamento (Adicional)
+
+## Gateways de Pagamento
+
+### Seleção de Gateways Principais
+- **Gateway Principal: Stripe**
+  - Suporte completo para pagamentos recorrentes e assinaturas
+  - Funcionalidades: tokenização de cartões, checkout integrado, detecção de fraude
+  - APIs utilizadas: Subscriptions API, Payment Intents API, Elements API
+  - Percentual de comissão: 2,9% + R$0,60 por transação (ajustável por volume)
+  - Implementação de Radar (sistema anti-fraude do Stripe) com regras personalizadas
+
+- **Gateway Secundário: PayPal**
+  - Integração via REST API e SDK JavaScript
+  - Suporte a Express Checkout para experiência simplificada
+  - Implementação de Webhooks para notificações em tempo real
+  - Tarifas: 4,79% + R$0,60 por transação internacional, 3,60% + R$0,40 para nacionais
+  - Funcionalidade de backup caso o gateway principal falhe
+
+### Gateways Regionais Específicos
+- **Brasil: PagSeguro e Mercado Pago**
+  - Suporte a PIX, boleto e cartões nacionais
+  - API de parcelamento específica para mercado brasileiro
+  - Taxas: 3,99% + R$0,40 para PagSeguro, 3,99% + R$0,30 para Mercado Pago
+  - Conciliação bancária automatizada via API
+
+- **Ásia: Alipay e WeChat Pay**
+  - Implementação através da API de parceiro internacional
+  - Suporte para QR code dinâmico e auth+capture
+  - Taxas: 3,0% para Alipay, 3,2% para WeChat Pay
+  - Conversão cambial automática via API específica
+
+- **Europa: Adyen**
+  - Suporte a métodos regionais (SEPA, iDEAL, SOFORT)
+  - Integração com 3D Secure 2.0 para conformidade PSD2
+  - Checkout unificado com detecção automática de país
+  - Taxas: Intercâmbio + 0,6% para cartões europeus
+
+### Middleware de Pagamento
+- **Sistema de Abstração de Gateway**
+  - Camada intermediária para padronizar chamadas entre diferentes gateways
+  - Estrutura de mapeamento para tradução de respostas e códigos de erro
+  - Cache de estado de transações para resiliência
+  - Monitoramento centralizado de métricas de transação
+
+- **Orquestrador de Rotas de Pagamento**
+  - Algoritmo inteligente para roteamento baseado em:
+    - Taxa de sucesso histórica do gateway
+    - Disponibilidade em tempo real
+    - Custo de processamento
+    - País de origem do usuário
+    - Método de pagamento selecionado
+  - Failover automático em caso de timeout ou falha
+
+- **Logging e Auditoria**
+  - Registro imutável de todas tentativas de pagamento
+  - Logs detalhados com mascaramento de PCI (sem armazenamento de dados sensíveis)
+  - Retenção de logs: 3 meses em hot storage, 7 anos em cold storage
+  - Sistema de alertas para padrões anômalos
+
+## Fluxos Detalhados de Pagamento
+
+### Fluxo de Assinatura Premium
+1. **Seleção de Plano**
+   - Renderização dinâmica de opções baseada em localização e moeda
+   - Cálculo em tempo real de impostos baseado no IP/localização
+   - Exibição de economia para planos anuais vs. mensais
+   - Verificação de elegibilidade para descontos (estudante, professor)
+
+2. **Checkout**
+   - Implementação sem redirecionamento (embedded checkout)
+   - Validação em tempo real de número de cartão (algoritmo Luhn)
+   - Detecção automática de bandeira
+   - Verificação de endereço (AVS) quando disponível
+   - Campo de cupom com validação instantânea e ajuste de valor
+
+3. **Processamento**
+   - Criação de cliente no gateway primário
+   - Tokenização do meio de pagamento (sem armazenar dados do cartão)
+   - Autorização inicial para validação (R$1,00 com estorno)
+   - Criação de assinatura com ciclo de faturamento
+   - Geração de primeiro pagamento
+
+4. **Confirmação**
+   - Página de sucesso com detalhes da transação
+   - Email transacional detalhado com invoice
+   - Provisionamento imediato de acesso premium
+   - Registro em banco de dados com ID de referência do gateway
+   - Atualização de status do usuário em cache distribuído
+
+5. **Webhook e Reconciliação**
+   - Processamento assíncrono de confirmação via webhook
+   - Verificação de assinatura digital do webhook
+   - Atualização de status em caso de divergência
+   - Registro em sistema de contabilidade
+
+### Fluxo de Renovação Automática
+1. **Notificação Pré-renovação**
+   - Email 7 dias antes com detalhes da cobrança futura
+   - Notificação in-app 3 dias antes
+   - Opção clara para cancelamento ou alteração de plano
+
+2. **Tentativa de Cobrança**
+   - Utilização de API específica para cobranças recorrentes
+   - Otimização para maior taxa de aprovação (recurso de rede do gateway)
+   - Horário otimizado para cobrança baseado em análise histórica
+
+3. **Tratamento de Sucesso**
+   - Confirmação via email com nova fatura
+   - Atualização de data de expiração da assinatura
+   - Registro de transação no histórico do usuário
+   - Processamento de comissões para programa de afiliados se aplicável
+
+4. **Tratamento de Falha**
+   - Implementação de retry strategy:
+     - 1ª tentativa adicional: 24 horas depois
+     - 2ª tentativa adicional: 3 dias depois
+     - 3ª tentativa adicional: 7 dias depois
+   - Notificações progressivas ao usuário
+   - Ativação de período de carência de 7 dias (grace period)
+   - Sugestão de método de pagamento alternativo
+
+### Fluxo de Compras In-App (Cristais)
+1. **Seleção de Pacote**
+   - Exibição de pacotes com bônus progressivos
+   - Aplicação automática de descontos para assinantes premium
+   - Visualização de histórico de compras anteriores
+   - Recomendação inteligente baseada em padrões de uso
+
+2. **Processo de Checkout**
+   - Opção de usar método de pagamento salvo
+   - Quick buy para compradores recorrentes
+   - Implementação de carteira digital interna
+   - Suporte a compras com saldo de crédito existente
+
+3. **Autorização e Captura**
+   - Processo de autorização + captura imediata
+   - Validação anti-fraude em tempo real
+   - Verificação de limites de compra por período
+   - Processamento de cartões internacionais com DCC (conversão dinâmica de moeda)
+
+4. **Entrega do Item Digital**
+   - Crédito imediato de cristais após aprovação
+   - Animação visual da adição de cristais
+   - Registro detalhado no servidor com backup
+   - Criação de histórico de transação consultável
+
+5. **Recebimento e Conciliação**
+   - Processamento de webhooks de confirmação
+   - Conciliação automática diária
+   - Detecção de discrepâncias entre autorização e captura
+   - Relatório detalhado para equipe financeira
+
+### Fluxo de Cancelamento e Reembolso
+1. **Solicitação de Cancelamento**
+   - Interface self-service para cancelamento com:
+     - Questionário de motivo (feedback)
+     - Ofertas de retenção baseadas no motivo
+     - Informações claras sobre acesso restante
+   - Confirmação por email da solicitação
+
+2. **Processamento do Cancelamento**
+   - Atualização imediata no gateway de pagamento
+   - Flag de não-renovação para assinaturas ativas
+   - Manutenção de acesso até o final do período pago
+   - Opção de downgrade para plano inferior
+
+3. **Solicitação de Reembolso**
+   - Interface para solicitações dentro da política (15 dias)
+   - Upload de comprovantes quando necessário
+   - Análise automática de elegibilidade
+   - Encaminhamento para análise manual em casos excepcionais
+
+4. **Processamento do Reembolso**
+   - Integração com API de reembolso do gateway
+   - Reembolso total ou parcial conforme política
+   - Atualização de status em sistemas internos
+   - Reversão de benefícios digitais concedidos
+   - Notificação ao usuário sobre andamento
+
+## Tratamento de Falhas em Transações
+
+### Sistema de Detecção de Falhas
+- **Categorização de Erros**
+  - **Erros do Gateway**: indisponibilidade, timeout, erro interno
+  - **Erros de Pagamento**: fundos insuficientes, cartão expirado, limite excedido
+  - **Erros de Validação**: dados inválidos, CVV incorreto, AVS falhou
+  - **Erros de Fraude**: bloqueio por regra, localização suspeita, velocidade de transações
+
+- **Monitoramento em Tempo Real**
+  - Dashboard dedicado para taxa de sucesso por gateway
+  - Alertas para quedas abruptas na taxa de aprovação
+  - Monitoramento de latência nas chamadas de API
+  - Thresholds configuráveis por tipo de erro e gateway
+
+### Estratégias de Recuperação
+- **Retry Automático**
+  - Política de tentativas configurável por tipo de erro
+  - Backoff exponencial para evitar sobrecarga
+  - Circuit breaker para prevenir falhas em cascata
+  - Registros detalhados de cada tentativa
+
+- **Roteamento Alternativo**
+  - Failover automático para gateway secundário
+  - Lógica de decisão baseada em tipo de erro
+  - Preferência por gateways com maior taxa de sucesso para o bin do cartão
+  - Preservação do contexto da transação entre tentativas
+
+- **Comunicação Proativa**
+  - Mensagens em tempo real durante processamento
+  - Notificações claras sobre falhas e próximas etapas
+  - Sugestões específicas baseadas no tipo de erro
+  - Opções alternativas de pagamento quando aplicável
+
+### Mecanismos de Compensação
+- **Transações Pendentes**
+  - Fila de processamento para transações não-confirmadas
+  - Verificação periódica de status via API
+  - Resolução automática baseada em regras de negócio
+  - Expiração configurável com notificação ao usuário
+
+- **Reconciliação Financeira**
+  - Processo automatizado diário de reconciliação
+  - Detecção de discrepâncias entre sistemas
+  - Workflow de resolução para transações problemáticas
+  - Relatórios detalhados por período e gateway
+
+## Segurança e Conformidade
+
+### Proteção PCI-DSS
+- **Escopo Limitado**
+  - Implementação de iframes seguros para coleta de dados de cartão
+  - Tokenização imediata sem armazenamento local
+  - Certificação SAQ-A para minimizar escopo PCI
+  - Auditoria anual de conformidade
+
+- **Criptografia e Armazenamento**
+  - Criptografia TLS 1.2+ para todas comunicações
+  - Tokens de pagamento armazenados com criptografia AES-256
+  - Chaves de criptografia gerenciadas em HSM
+  - Acesso baseado em necessidade com autenticação MFA
+
+### Prevenção de Fraude
+- **Sistema Multi-camadas**
+  - Verificação de endereço (AVS) quando disponível
+  - Validação de código de segurança (CVV)
+  - Análise de comportamento de usuário (tempo na plataforma, padrão de uso)
+  - Verificação de velocidade (limite de transações por período)
+  - Análise de dispositivo e fingerprinting
+
+- **Regras Configuráveis**
+  - Limites de valor por transação e por período
+  - Bloqueios baseados em localização geográfica
+  - Flags para combinações suspeitas (novo usuário + valor alto)
+  - Sistema de scoring com thresholds ajustáveis
+
+- **Machine Learning para Detecção**
+  - Modelo preditivo treinado com dados históricos
+  - Detecção de anomalias em padrões de transação
+  - Adaptação contínua a novos padrões de fraude
+  - Feedback loop com confirmações de fraude real
+
+### Auditoria e
