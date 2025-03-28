@@ -24,6 +24,7 @@ yarn-error.log*
 
 # local env files
 .env*.local
+.env
 
 # vercel
 .vercel
@@ -33,5 +34,18 @@ yarn-error.log*
 next-env.d.ts
 
 # IDE
-.vscode
-.idea 
+.vscode/
+.idea/
+
+# Firebase
+.firebase/
+*.log
+
+# Prisma
+/prisma/migrations/
+/prisma/*.db
+/prisma/*.db-journal
+
+# PWA
+public/sw.js
+public/workbox-*.js 

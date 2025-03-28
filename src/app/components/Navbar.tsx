@@ -1,60 +1,163 @@
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+'use client';
+
+import { useState } from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
+import { usePathname } from 'next/navigation';
+import Container from './Container';
+import Button from './Button';
+
+const navigation = [
+  { name: 'Início', href: '/' },
+  { name: 'Cursos', href: '/cursos' },
+  { name: 'Blog', href: '/blog' },
+  { name: 'Ajuda', href: '/ajuda' },
+];
 
 export default function Navbar() {
-  const pathname = usePathname()
-
-  const isActive = (path: string) => {
-    return pathname === path ? 'text-primary-600' : 'text-gray-600 hover:text-primary-500'
-  }
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const pathname = usePathname();
 
   return (
-    <nav className="bg-white shadow-lg">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
-          <div className="flex">
-            <div className="flex-shrink-0 flex items-center">
-              <Link href="/" className="text-2xl font-bold text-primary-600">
-                EducaMaster AI
-              </Link>
-            </div>
-            <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
-              <Link
-                href="/cursos"
-                className={`inline-flex items-center px-1 pt-1 border-b-2 ${
-                  pathname === '/cursos' ? 'border-primary-500' : 'border-transparent'
-                } ${isActive('/cursos')}`}
-              >
-                Cursos
-              </Link>
-              <Link
-                href="/planos"
-                className={`inline-flex items-center px-1 pt-1 border-b-2 ${
-                  pathname === '/planos' ? 'border-primary-500' : 'border-transparent'
-                } ${isActive('/planos')}`}
-              >
-                Planos
-              </Link>
-              <Link
-                href="/sobre"
-                className={`inline-flex items-center px-1 pt-1 border-b-2 ${
-                  pathname === '/sobre' ? 'border-primary-500' : 'border-transparent'
-                } ${isActive('/sobre')}`}
-              >
-                Sobre
-              </Link>
-            </div>
-          </div>
-          <div className="hidden sm:ml-6 sm:flex sm:items-center">
-            <Link
-              href="/entrar"
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-            >
-              Entrar
+    <header className="bg-white shadow-sm">
+      <Container>
+        <nav className="flex items-center justify-between py-4">
+          {/* Logo */}
+          <div className="flex lg:flex-1">
+            <Link href="/" className="-m-1.5 p-1.5">
+              <span className="sr-only">EducaMaster AI</span>
+              <Image src="/logo.svg" alt="EducaMaster AI" width={150} height={32} priority />
             </Link>
           </div>
-        </div>
-      </div>
-    </nav>
-  )
-} 
+
+          {/* Menu Mobile */}
+          <div className="flex lg:hidden">
+            <button
+              type="button"
+              className="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-700"
+              onClick={() => setMobileMenuOpen(true)}
+            >
+              <span className="sr-only">Abrir menu</span>
+              <svg
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth="1.5"
+                stroke="currentColor"
+                aria-hidden="true"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+                />
+              </svg>
+            </button>
+          </div>
+
+          {/* Menu Desktop */}
+          <div className="hidden lg:flex lg:gap-x-8">
+            {navigation.map(item => (
+              <Link
+                key={item.name}
+                href={item.href}
+                className={`text-sm font-semibold leading-6 ${
+                  pathname === item.href
+                    ? 'text-primary-600'
+                    : 'text-gray-900 hover:text-primary-600'
+                }`}
+              >
+                {item.name}
+              </Link>
+            ))}
+          </div>
+
+          {/* Botões Desktop */}
+          <div className="hidden lg:flex lg:flex-1 lg:justify-end lg:gap-x-4">
+            <Link href="/entrar">
+              <Button variant="outline">Entrar</Button>
+            </Link>
+            <Link href="/cadastro">
+              <Button>Começar Agora</Button>
+            </Link>
+          </div>
+        </nav>
+
+        {/* Menu Mobile Overlay */}
+        {mobileMenuOpen && (
+          <div className="fixed inset-0 z-50">
+            {/* Background overlay */}
+            <div
+              className="fixed inset-0 bg-black/30 backdrop-blur-sm"
+              aria-hidden="true"
+              onClick={() => setMobileMenuOpen(false)}
+            />
+
+            {/* Menu panel */}
+            <div className="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-white px-6 py-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10">
+              <div className="flex items-center justify-between">
+                <Link href="/" className="-m-1.5 p-1.5">
+                  <span className="sr-only">EducaMaster AI</span>
+                  <Image src="/logo.svg" alt="EducaMaster AI" width={150} height={32} priority />
+                </Link>
+                <button
+                  type="button"
+                  className="-m-2.5 rounded-md p-2.5 text-gray-700"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <span className="sr-only">Fechar menu</span>
+                  <svg
+                    className="h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth="1.5"
+                    stroke="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              <div className="mt-6 flow-root">
+                <div className="-my-6 divide-y divide-gray-500/10">
+                  <div className="space-y-2 py-6">
+                    {navigation.map(item => (
+                      <Link
+                        key={item.name}
+                        href={item.href}
+                        className={`-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 ${
+                          pathname === item.href
+                            ? 'text-primary-600'
+                            : 'text-gray-900 hover:bg-gray-50'
+                        }`}
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        {item.name}
+                      </Link>
+                    ))}
+                  </div>
+                  <div className="py-6 space-y-4">
+                    <Link
+                      href="/entrar"
+                      className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Entrar
+                    </Link>
+                    <Link
+                      href="/cadastro"
+                      className="-mx-3 block rounded-lg bg-primary-600 px-3 py-2.5 text-base font-semibold leading-7 text-white hover:bg-primary-700"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Começar Agora
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </Container>
+    </header>
+  );
+}

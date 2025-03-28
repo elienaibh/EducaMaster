@@ -1,0 +1,607 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Modelo de Usuário
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  role          UserRole  @default(USER)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relacionamentos
+  accounts      Account[]
+  sessions      Session[]
+  enrollments   Enrollment[]
+  comments      Comment[]
+  ratings       Rating[]
+  notifications Notification[]
+  messages      Message[]
+  quizResults   QuizResult[]
+  eventos       EventoAnalytics[]
+  likes         Like[]
+  following     Follow[]  @relation("Following")
+  followers     Follow[]  @relation("Followers")
+
+  // Novos relacionamentos
+  mascot       Mascot?
+  achievements UserAchievement[]
+  bossBattles  BossBattle[]
+  progress     Progress[]
+
+  courses Course[]
+
+  @@map("users")
+}
+
+// Modelo de Conta (para OAuth)
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+// Modelo de Sessão
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+// Modelo de Token de Verificação
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// Modelo de Curso
+model Course {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  description String   @db.Text
+  imageUrl    String?
+  price       Float
+  published   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  authorId    String
+  author      User     @relation(fields: [authorId], references: [id])
+  averageRating Float? @default(0)
+
+  // Relacionamentos
+  lessons     Lesson[]
+  enrollments Enrollment[]
+  ratings     Rating[]
+  comments    Comment[]
+  categories  CategoriesOnCourses[]
+  bosses      Boss[]
+
+  @@index([authorId])
+}
+
+// Modelo de Aula
+model Lesson {
+  id        String     @id @default(cuid())
+  title     String
+  content   String     @db.Text
+  videoUrl  String?
+  order     Int
+  courseId  String
+  course    Course     @relation(fields: [courseId], references: [id])
+  comments  Comment[]
+  progress  Progress[]
+  resources Resource[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@index([courseId])
+}
+
+// Modelo de Progresso da Aula
+model Progress {
+  id           String      @id @default(cuid())
+  completed    Boolean     @default(false)
+  completedAt  DateTime?
+  userId       String
+  lessonId     String
+  user         User        @relation(fields: [userId], references: [id])
+  lesson       Lesson      @relation(fields: [lessonId], references: [id])
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  Enrollment   Enrollment? @relation(fields: [enrollmentId], references: [id])
+  enrollmentId String?
+
+  @@unique([userId, lessonId])
+  @@index([userId])
+  @@index([lessonId])
+}
+
+// Modelo de Matrícula
+model Enrollment {
+  id          String           @id @default(cuid())
+  userId      String
+  courseId    String
+  status      EnrollmentStatus @default(ACTIVE)
+  completedAt DateTime?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  // Relacionamentos
+  user        User         @relation(fields: [userId], references: [id])
+  course      Course       @relation(fields: [courseId], references: [id])
+  progress    Progress[]
+  certificate Certificate?
+
+  @@unique([userId, courseId])
+  @@index([userId])
+  @@index([courseId])
+}
+
+// Modelo de Certificado
+model Certificate {
+  id           String   @id @default(cuid())
+  enrollmentId String   @unique
+  code         String   @unique
+  issuedAt     DateTime @default(now())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relacionamentos
+  enrollment Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+
+  @@map("certificates")
+}
+
+// Modelo de Categoria
+model Category {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  slug        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relacionamentos
+  courses CategoriesOnCourses[]
+  posts   CategoriesOnPosts[]
+
+  @@map("categories")
+}
+
+// Modelo de Relacionamento Categorias-Cursos
+model CategoriesOnCourses {
+  courseId   String
+  categoryId String
+  course     Course   @relation(fields: [courseId], references: [id])
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  @@id([courseId, categoryId])
+  @@index([courseId])
+  @@index([categoryId])
+}
+
+// Modelo de Post do Blog
+model Post {
+  id        String   @id @default(cuid())
+  title     String
+  slug      String   @unique
+  content   String   @db.Text
+  excerpt   String?
+  image     String?
+  published Boolean  @default(false)
+  authorId  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relacionamentos
+  categories CategoriesOnPosts[]
+  comments   Comment[]
+  likes      Like[]
+
+  @@map("posts")
+}
+
+// Modelo de Relacionamento Categorias-Posts
+model CategoriesOnPosts {
+  postId     String
+  categoryId String
+  createdAt  DateTime @default(now())
+
+  post     Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([postId, categoryId])
+  @@map("categories_posts")
+}
+
+// Modelo de Comentário
+model Comment {
+  id        String   @id @default(cuid())
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    String
+  lessonId  String
+  user      User     @relation(fields: [userId], references: [id])
+  lesson    Lesson   @relation(fields: [lessonId], references: [id])
+  Course    Course?  @relation(fields: [courseId], references: [id])
+  courseId  String?
+  Post      Post?    @relation(fields: [postId], references: [id])
+  postId    String?
+
+  @@index([userId])
+  @@index([lessonId])
+}
+
+// Modelo de Avaliação
+model Rating {
+  id        String   @id @default(cuid())
+  rating    Int
+  comment   String?  @db.Text
+  userId    String
+  courseId  String
+  user      User     @relation(fields: [userId], references: [id])
+  course    Course   @relation(fields: [courseId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, courseId])
+  @@index([userId])
+  @@index([courseId])
+}
+
+// Modelo de Notificação
+model Notification {
+  id        String   @id @default(cuid())
+  title     String
+  content   String
+  read      Boolean  @default(false)
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relacionamentos
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+// Modelo de Mensagem
+model Message {
+  id        String   @id @default(cuid())
+  content   String   @db.Text
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relacionamentos
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("messages")
+}
+
+// Modelo de Recurso
+model Resource {
+  id        String       @id @default(cuid())
+  title     String
+  type      ResourceType
+  url       String
+  lessonId  String
+  lesson    Lesson       @relation(fields: [lessonId], references: [id])
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  @@index([lessonId])
+}
+
+// Modelo de Analytics
+model EventoAnalytics {
+  id        String   @id @default(cuid())
+  userId    String
+  tipo      String
+  dados     Json?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@map("eventos_analytics")
+}
+
+// Modelo de Mascote (Lumi)
+model Mascot {
+  id              String              @id @default(cuid())
+  name            String
+  type            String // CAT, DOG, BIRD, RABBIT
+  level           Int                 @default(1)
+  experience      Int                 @default(0)
+  mood            String // HAPPY, NEUTRAL, SAD
+  lastInteraction DateTime            @default(now())
+  userId          String              @unique
+  user            User                @relation(fields: [userId], references: [id])
+  interactions    MascotInteraction[]
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  @@map("mascots")
+}
+
+// Modelo de Interação com Mascote
+model MascotInteraction {
+  id        String   @id @default(cuid())
+  type      String // FEED, PLAY, STUDY, PET
+  timestamp DateTime @default(now())
+  mascotId  String
+  mascot    Mascot   @relation(fields: [mascotId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("mascot_interactions")
+}
+
+// Modelo de Item
+model Item {
+  id          String     @id @default(cuid())
+  name        String
+  description String
+  type        ItemType
+  rarity      ItemRarity
+  price       Int
+  image       String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@map("items")
+}
+
+// Modelo de Conquista
+model Achievement {
+  id          String         @id @default(cuid())
+  title       String
+  description String
+  icon        String
+  type        AchievementType
+  requirement Json
+  rarity      String
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  // Relacionamentos
+  userAchievements UserAchievement[]
+
+  @@map("achievements")
+}
+
+// Modelo de Conquista do Usuário
+model UserAchievement {
+  id            String      @id @default(cuid())
+  userId        String
+  achievementId String
+  unlockedAt    DateTime    @default(now())
+  user          User        @relation(fields: [userId], references: [id])
+  achievement   Achievement @relation(fields: [achievementId], references: [id])
+
+  @@unique([userId, achievementId])
+  @@index([userId])
+  @@index([achievementId])
+  @@map("user_achievements")
+}
+
+// Modelo de Boss
+model Boss {
+  id          String       @id @default(cuid())
+  name        String
+  description String
+  level       Int
+  health      Int
+  maxHealth   Int
+  attack      Int
+  defense     Int
+  experience  Int
+  isDefeated  Boolean      @default(false)
+  courseId    String
+  course      Course       @relation(fields: [courseId], references: [id])
+  rewards     BossReward[]
+  battles     BossBattle[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@map("bosses")
+}
+
+// Modelo de Recompensa de Boss
+model BossReward {
+  id        String   @id @default(cuid())
+  type      String // EXPERIENCE, COINS, ITEM
+  amount    Int
+  itemId    String?
+  bossId    String
+  boss      Boss     @relation(fields: [bossId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("boss_rewards")
+}
+
+// Modelo de Batalha contra Boss
+model BossBattle {
+  id        String   @id @default(cuid())
+  name      String
+  level     Int
+  completed Boolean  @default(false)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  Boss      Boss?    @relation(fields: [bossId], references: [id])
+  bossId    String?
+
+  @@index([userId])
+}
+
+// Modelo de Resultado de Quiz
+model QuizResult {
+  id        String   @id @default(cuid())
+  userId    String
+  score     Float
+  quizId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relacionamentos
+  user      User     @relation(fields: [userId], references: [id])
+  quiz      Quiz     @relation(fields: [quizId], references: [id])
+
+  @@index([userId])
+  @@index([quizId])
+  @@map("quiz_results")
+}
+
+// Modelo de Quiz
+model Quiz {
+  id        String       @id @default(cuid())
+  title     String
+  questions Question[]
+  results   QuizResult[]
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  @@map("quizzes")
+}
+
+// Modelo de Questão
+model Question {
+  id        String   @id @default(cuid())
+  quizId    String
+  question  String
+  options   String[]
+  answer    Int
+  quiz      Quiz     @relation(fields: [quizId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([quizId])
+  @@map("questions")
+}
+
+// Modelo de Seguir
+model Follow {
+  id          String   @id @default(cuid())
+  followerId  String
+  followingId String
+  createdAt   DateTime @default(now())
+  follower    User     @relation("Following", fields: [followerId], references: [id])
+  following   User     @relation("Followers", fields: [followingId], references: [id])
+
+  @@unique([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
+  @@map("follows")
+}
+
+// Modelo de Curtida
+model Like {
+  id        String   @id @default(cuid())
+  userId    String
+  postId    String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+  post      Post     @relation(fields: [postId], references: [id])
+
+  @@unique([userId, postId])
+  @@index([userId])
+  @@index([postId])
+  @@map("likes")
+}
+
+// Enums
+enum UserRole {
+  ADMIN
+  INSTRUCTOR
+  USER
+}
+
+enum EnrollmentStatus {
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+enum ResourceType {
+  PDF
+  LINK
+  IMAGE
+  CODE
+  OTHER
+}
+
+// Enums para o sistema de gamificação
+enum ItemType {
+  ACCESSORY
+  FOOD
+  COSTUME
+  TOY
+  BACKGROUND
+}
+
+enum ItemRarity {
+  COMMON
+  UNCOMMON
+  RARE
+  EPIC
+  LEGENDARY
+}
+
+enum AchievementType {
+  STUDY_STREAK
+  COURSE_COMPLETION
+  QUIZ_MASTER
+  SOCIAL
+  SPECIAL
+}
+
+enum BattleStatus {
+  IN_PROGRESS
+  VICTORY
+  DEFEAT
+  ABANDONED
+}
